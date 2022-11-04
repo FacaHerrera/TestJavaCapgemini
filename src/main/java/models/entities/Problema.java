@@ -9,6 +9,8 @@ public class Problema {
     private List<Estado> historialEstados;
     private Estado estadoActual;
 
+    private Integer colchonHorasResolucion;
+
     public String getDescripcion() {
         return descripcion;
     }
@@ -47,5 +49,16 @@ public class Problema {
 
     public void setEstadoActual(Estado estadoActual) {
         this.estadoActual = estadoActual;
+    }
+
+    public Integer getColchonHorasResolucion() {
+        return colchonHorasResolucion;
+    }
+
+    public void setColchonHorasResolucion(Integer colchonHorasResolucion) {
+        if(getNivelDificultad().equals(NivelDificultad.COMPLEJO))
+            this.colchonHorasResolucion = colchonHorasResolucion;
+        else
+            throw new RuntimeException("El colchon de horas unicamente puede ser asignado para problemas complejos!");
     }
 }
