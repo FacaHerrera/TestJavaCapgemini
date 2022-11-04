@@ -1,5 +1,8 @@
 package models.entities;
 
+import models.exceptions.TecnicoException;
+import models.exceptions.TecnicoNoAptoException;
+
 import java.util.List;
 
 public class Tecnico {
@@ -17,24 +20,35 @@ public class Tecnico {
         this.setTiemposDefault(tiemposDefault);
     }
 
-    public void addIncident(Incidente incidente) {
+    /**
+     * Solucionamos el error de la clase, desmenuzando el problema en cuando un tecnico puede resolver y replicando
+     * la logica para todos los problemas de un incidente. Creamos una Excepcion personalizada para los errores
+     * relacionados con la clase tecnico.
+     *
+     * @param incidente
+     * @throws Exception
+     */
+    public void addIncident(Incidente incidente) throws Exception {
         try {
-            incidente.getProblemas().forEach(p -> {
-                List<Especialidad> especialidadesResolutorias = p.getTipoProblema().getEspecialidadesQueLoResuelven();
-                for(Especialidad e: getEspecialidades()) {
-                    if(especialidadesResolutorias.contains(e)) {
-                        getIncidentesAsignados().add(incidente);
-                        System.out.println("Se agrego el incidente a la lista del tecnico: " + this.getNombre());
-                        break;
-                    }
-                }
-            });
 
-            System.out.println("No es posible agregar el incidente a la lista debido a que las especialidades no corresponden");
+            boolean puedeResolver = incidente.getProblemas().stream().allMatch(x -> puedeResolver(x));
+            if(!puedeResolver) {
+                throw new TecnicoNoAptoException("El tecnico no puede ser asignado ya que no cuenta con las especialidades necesarias");
+            }
+            else incidentesAsignados.add(incidente);
 
         } catch (Exception e) {
-            System.out.println("Error: " + e);
+            throw new TecnicoException(e.getMessage());
         }
+    }
+    public boolean puedeResolver(Problema unProblema) {
+        List<Especialidad> especialidadesResolutorias = unProblema.getTipoProblema().getEspecialidadesQueLoResuelven();
+        for(Especialidad e: this.getEspecialidades()) {
+            if(especialidadesResolutorias.contains(e))
+                return true;
+        }
+
+        return false;
     }
 
     public String getNombre() {
